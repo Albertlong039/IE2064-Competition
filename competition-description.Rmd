@@ -59,17 +59,25 @@ Note that you will not know your exact score for this question until the
 assignments are graded. However, you should be able to use the validation
 set to get a good estimate.
 ```{r}
-library(dplyr)
 library(ggplot2)
-library(RColorBrewer)
-library(ggpubr)
-library(readxl)
+library(AppliedPredictiveModeling)
+library(caret)
+library(glmnet)
+library(dplyr)
 
 ```
 ```{r}
 cwd <- dirname(rstudioapi::getSourceEditorContext()$path)
 data <- read.csv(
-  paste(cwd,"/competition-data.csv.csv",sep=""),
+  paste(cwd,"/competition-data.csv",sep=""),
   stringsAsFactors = FALSE
 )
+```
+
+```{r}
+set.seed(100)
+data1 <- na.omit(data)
+trainIndex <- createDataPartition(data1, p = 0.8, list = FALSE)
+trainData <- data1[trainIndex, ]
+testData <- data1[-trainIndex, ]
 ```

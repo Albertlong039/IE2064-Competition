@@ -223,6 +223,7 @@ method = "ridge",
 tuneGrid = ridgeGrid,
 trControl = ctrl,
 preProc = c("center", "scale")
+)
 ```
 
 #Lasso

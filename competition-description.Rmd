@@ -189,3 +189,72 @@ Trees_models <- list(min(tree_fit$results$RMSE),
                      min(rf_fit$results$RMSE))
 Trees_models
 ```
+# Linear Regression
+```{r}
+set.seed(100)
+lmTune <- train(outcome ~ .,data = trainData,
+method = "lm",
+trControl = ctrl)
+```
+#PLS
+```{r}
+set.seed(100)
+plsTune <- train(outcome ~ .,data = trainData,
+method = "pls",
+tuneGrid = expand.grid(ncomp = 1:50),
+trControl = ctrl)
+```
+
+#PCR
+```{r}
+set.seed(100)
+pcrTune <- train(outcome ~ .,data = trainData,
+method = "pcr",
+tuneGrid = expand.grid(ncomp = 1:50),
+trControl = ctrl)
+```
+
+#Ridge
+```{r}
+set.seed(100)
+ridgeGrid <- expand.grid(lambda = seq(0, .1, length = 10))
+ridgeTune <- train(outcome ~ .,data = trainData,
+method = "ridge",
+tuneGrid = ridgeGrid,
+trControl = ctrl,
+preProc = c("center", "scale")
+)
+```
+
+#Lasso
+```{r}
+set.seed(100)
+lassoGrid <- expand.grid(lambda = c(0),
+                        fraction = seq(.1, 1, length = 15))
+  lassoTune <- train(outcome ~ .,data = trainData,
+  method = "enet",
+  tuneGrid = lassoGrid,
+  trControl = ctrl,
+  preProc = c("center", "scale")
+)
+```
+
+# Elastic net
+```{r}
+set.seed(100)
+enetGrid <- expand.grid(lambda = seq(0.0, 0.02, length = 5),
+                          fraction = seq(.1, 1, length = 5))
+  enetTune <- train(outcome ~ .,data = trainData,
+  method = "enet",
+  tuneGrid = enetGrid,
+  trControl = ctrl,
+  preProc = c("center", "scale")
+)
+Regression_models <- list(min(lmTune$results$RMSE),
+                          min(plsTune$results$RMSE),
+                          min(pcrTune$results$RMSE),
+                          min(ridgeTune$results$RMSE),
+                          min(lassoTune$results$RMSE),
+                          min(enetGrid$results$RMSE))
+Regression_models
+```

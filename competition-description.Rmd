@@ -62,7 +62,7 @@ set to get a good estimate.
 library(tidyverse)
 library(caret)
 library(modelr)
-options(na.action = na.warn)
+
 library(e1071)
 
 ```

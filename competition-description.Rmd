@@ -250,4 +250,11 @@ enetGrid <- expand.grid(lambda = seq(0.0, 0.02, length = 5),
   trControl = ctrl,
   preProc = c("center", "scale")
 )
+Regression_models <- list(min(lmTune$results$RMSE),
+                          min(plsTune$results$RMSE),
+                          min(pcrTune$results$RMSE),
+                          min(ridgeTune$results$RMSE),
+                          min(lassoTune$results$RMSE),
+                          min(enetGrid$results$RMSE))
+Regression_models
 ```

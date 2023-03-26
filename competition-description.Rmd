@@ -1,6 +1,6 @@
 ---
 title: "Competition description"
-author: "Oliver Hinder"
+author: "Sina, Yixuan"
 output: pdf_document
 ---
 

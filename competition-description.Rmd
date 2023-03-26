@@ -58,4 +58,18 @@ error (RMSE). The scores will be calculated as follows
 Note that you will not know your exact score for this question until the 
 assignments are graded. However, you should be able to use the validation
 set to get a good estimate.
+```{r}
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggpubr)
+library(readxl)
 
+```
+```{r}
+cwd <- dirname(rstudioapi::getSourceEditorContext()$path)
+data <- read.csv(
+  paste(cwd,"/competition-data.csv.csv",sep=""),
+  stringsAsFactors = FALSE
+)
+```

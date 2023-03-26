@@ -59,11 +59,11 @@ Note that you will not know your exact score for this question until the
 assignments are graded. However, you should be able to use the validation
 set to get a good estimate.
 ```{r}
-library(ggplot2)
-library(AppliedPredictiveModeling)
+library(tidyverse)
 library(caret)
-library(glmnet)
-library(dplyr)
+library(modelr)
+options(na.action = na.warn)
+library(e1071)
 
 ```
 ```{r}
@@ -74,12 +74,69 @@ data <- read.csv(
 )
 ```
 
+#Dealing with missing values
+```{r}
+total_na <- function(x) sum(is.na(x))
+CPM_na <- sort(data %>% summarise(across(everything(), total_na)),decreasing=TRUE)
+CPM_na[,1:6]
+```
+
+#Transformations to the predictor distribution
+```{r}
+skewness(data$outcome)
+```
+
+```{r}
+data <- data %>% filter(outcome >0)
+skewness(data$outcome)
+```
+
+```{r}
+predictors_only <- select(data, -outcome)
+df_predictors_only <- data.frame(predictors_only)
+preprocessing_fit <- preProcess(
+df_predictors_only,
+method = c("BoxCox", "center", "scale"))
+preprocessing_fit
+```
+
+
+```{r}
+transformed_predictors <- predict(preprocessing_fit, df_predictors_only)
+transformed_predictors$outcome = data$outcome
+```
+
+#Detecting and handling outliers
+```{r}
+ggplot(transformed_predictors, aes(y= outcome)) + geom_boxplot()
+```
+
+#Adding predictors
+```{r}
+sapply(transformed_predictors, class)
+```
+
+#Data reduction
+```{r}
+remove_these_predictors <- nearZeroVar(transformed_predictors)
+preprocessed <- transformed_predictors[,-remove_these_predictors]
+ncol(preprocessed)
+```
+
+```{r}
+predictors_only <- data.frame(preprocessed %>% select(-outcome))
+predictors_only_correlation_matrix <- cor(predictors_only)
+cutoff <- 0.95
+names_of_predictors_to_remove <- findCorrelation(
+predictors_only_correlation_matrix, names=TRUE, cutoff=cutoff)
+removed_predictors <- preprocessed %>%
+select(-all_of(names_of_predictors_to_remove))
+ncol(removed_predictors)
+```
+
 ```{r}
 set.seed(100)
-data1 <- na.omit(data)
-trainIndex <- createDataPartition(data1$outcome, p = 0.8, list = FALSE)
-trainData <- data1[trainIndex, ]
-testData <- data1[-trainIndex, ]
+trainData <- removed_predictors
 folds <- createFolds(trainData$outcome, k = 10, returnTrain = TRUE)
 ctrl <- trainControl(method = "cv", index = folds)
 ```

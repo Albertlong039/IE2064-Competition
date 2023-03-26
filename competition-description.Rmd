@@ -62,7 +62,6 @@ set to get a good estimate.
 library(tidyverse)
 library(caret)
 library(modelr)
-
 library(e1071)
 
 ```
@@ -122,7 +121,7 @@ remove_these_predictors <- nearZeroVar(transformed_predictors)
 preprocessed <- transformed_predictors[,-remove_these_predictors]
 ncol(preprocessed)
 ```
-
+# preprocessing
 ```{r}
 predictors_only <- data.frame(preprocessed %>% select(-outcome))
 predictors_only_correlation_matrix <- cor(predictors_only)
@@ -132,10 +131,8 @@ predictors_only_correlation_matrix, names=TRUE, cutoff=cutoff)
 removed_predictors <- preprocessed %>%
 select(-all_of(names_of_predictors_to_remove))
 ncol(removed_predictors)
-```
 
-```{r}
-set.seed(100)
+# folding
 trainData <- removed_predictors
 folds <- createFolds(trainData$outcome, k = 10, returnTrain = TRUE)
 ctrl <- trainControl(method = "cv", index = folds)
@@ -178,9 +175,7 @@ Non_linear_models
 set.seed(123)
 tree_fit = train(outcome ~ ., data = trainData, method = "rpart", trControl = ctrl)
 summary(tree_fit$finalModel)
-```
 
-```{r}
 # Random forests
 set.seed(123)
 mtryGrid <- data.frame()
@@ -190,17 +185,19 @@ summary(rf_fit$finalModel)
 Trees_models <- list(min(tree_fit$results$RMSE),
                      min(rf_fit$results$RMSE))
 Trees_models
+rf_fit$results
 ```
-# Linear Regression
+
 ```{r}
+# Linear Regression
+
 set.seed(100)
 lmTune <- train(outcome ~ .,data = trainData,
 method = "lm",
 trControl = ctrl)
-```
 
 #Ridge
-```{r}
+
 set.seed(100)
 ridgeGrid <- expand.grid(lambda = seq(0, .1, length = 10))
 ridgeTune <- train(outcome ~ .,data = trainData,
@@ -209,10 +206,9 @@ tuneGrid = ridgeGrid,
 trControl = ctrl,
 preProc = c("center", "scale")
 )
-```
 
 #Lasso
-```{r}
+
 set.seed(100)
 lassoGrid <- expand.grid(lambda = c(0),
                         fraction = seq(.1, 1, length = 15))
@@ -222,10 +218,9 @@ lassoGrid <- expand.grid(lambda = c(0),
   trControl = ctrl,
   preProc = c("center", "scale")
 )
-```
 
 # Elastic net
-```{r}
+
 set.seed(100)
 enetGrid <- expand.grid(lambda = seq(0.0, 0.02, length = 5),
                           fraction = seq(.1, 1, length = 5))
@@ -240,4 +235,24 @@ Regression_models <- list(min(lmTune$results$RMSE),
                           min(lassoTune$results$RMSE),
                           min(enetTune$results$RMSE))
 Regression_models
+```
+
+# using the model and doing the output
+```{r}
+# read the input value
+cwd <- dirname(rstudioapi::getSourceEditorContext()$path)
+data2 <- read.csv(
+  paste(cwd,"/competition-test-x-values.csv",sep=""),
+  stringsAsFactors = FALSE
+)
+```
+
+```{r}
+# do the prediction with random forest
+predictions <- predict(rf_fit, data2)
+data2$outcome <- predictions
+```
+
+```{r}
+write.csv(data2, paste(cwd,"/results.csv",sep=""), row.names = FALSE)
 ```

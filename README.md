@@ -2,6 +2,7 @@
 We use the first set of data “competition-data”for training and the second set of data “competition-test-x-values”for output.
 
 We here have 3 groups of models.
+
 non-linaer:
 SVM, Neural net, MARS, K-nearest
 

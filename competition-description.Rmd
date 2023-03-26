@@ -113,3 +113,22 @@ Non_linear_models <- list(min(svm_fit$results$RMSE),
                           min(knn_fit$results$RMSE))
 Non_linear_models
 ```
+
+```{r}
+# Trees
+
+# Regression tree
+set.seed(123)
+tree_fit = train(outcome ~ ., data = trainData, method = "rpart", trControl =
+                 trainControl)
+summary(tree_fit$finalModel)
+
+# Random forests
+set.seed(123)
+rf_fit = train(outcome ~ ., data = trainData, method = "rf")
+summary(rf_fit$finalModel)
+
+Trees_models <- list(min(tree_fit$results$RMSE),
+                     min(rf_fit$results$RMSE))
+Trees_models
+```

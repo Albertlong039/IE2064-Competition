@@ -176,13 +176,15 @@ Non_linear_models
 
 # Regression tree
 set.seed(123)
-tree_fit = train(outcome ~ ., data = trainData, method = "rpart", trControl =
-                 ctrl)
+tree_fit = train(outcome ~ ., data = trainData, method = "rpart", trControl = ctrl)
 summary(tree_fit$finalModel)
+```
 
+```{r}
 # Random forests
 set.seed(123)
-rf_fit = train(outcome ~ ., data = trainData, method = "rf")
+mtryGrid <- data.frame()
+rf_fit = train(outcome ~ ., data = trainData, method = "rf", ntree=50, importance = TRUE)
 summary(rf_fit$finalModel)
 
 Trees_models <- list(min(tree_fit$results$RMSE),
@@ -194,23 +196,6 @@ Trees_models
 set.seed(100)
 lmTune <- train(outcome ~ .,data = trainData,
 method = "lm",
-trControl = ctrl)
-```
-#PLS
-```{r}
-set.seed(100)
-plsTune <- train(outcome ~ .,data = trainData,
-method = "pls",
-tuneGrid = expand.grid(ncomp = 1:50),
-trControl = ctrl)
-```
-
-#PCR
-```{r}
-set.seed(100)
-pcrTune <- train(outcome ~ .,data = trainData,
-method = "pcr",
-tuneGrid = expand.grid(ncomp = 1:50),
 trControl = ctrl)
 ```
 
@@ -251,10 +236,8 @@ enetGrid <- expand.grid(lambda = seq(0.0, 0.02, length = 5),
   preProc = c("center", "scale")
 )
 Regression_models <- list(min(lmTune$results$RMSE),
-                          min(plsTune$results$RMSE),
-                          min(pcrTune$results$RMSE),
                           min(ridgeTune$results$RMSE),
                           min(lassoTune$results$RMSE),
-                          min(enetGrid$results$RMSE))
+                          min(enetTune$results$RMSE))
 Regression_models
 ```

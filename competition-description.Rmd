@@ -77,7 +77,39 @@ data <- read.csv(
 ```{r}
 set.seed(100)
 data1 <- na.omit(data)
-trainIndex <- createDataPartition(data1, p = 0.8, list = FALSE)
+trainIndex <- createDataPartition(data1$outcome, p = 0.8, list = FALSE)
 trainData <- data1[trainIndex, ]
 testData <- data1[-trainIndex, ]
+folds <- createFolds(trainData$outcome, k = 10, returnTrain = TRUE)
+trainControl <- trainControl(method = "cv", index = folds)
+```
+
+```{r}
+# Non-linear models
+
+# Support Vector Machines (SVM)
+set.seed(123)
+svm_fit <- train(outcome ~ ., data = trainData, method = "svmRadial", trControl =
+                   trainControl)
+
+# Neural Nets
+set.seed(123)
+nnet_fit <- train(outcome ~ ., data = trainData, method = "nnet", trControl =
+                    trainControl)
+
+# Multivariate Adaptive Regression Splines (MARS)
+set.seed(123)
+mars_fit <- train(outcome ~ ., data = trainData, method = "earth", trControl =
+                    trainControl)
+
+# K-nearest
+set.seed(123)
+knn_fit = train(outcome~ ., data = trainData, method = "knn", trControl =
+                  trainControl, preProc = c("center", "scale"))
+
+Non_linear_models <- list(min(svm_fit$results$RMSE),
+                          min(nnet_fit$results$RMSE),
+                          min(mars_fit$results$RMSE),
+                          min(knn_fit$results$RMSE))
+Non_linear_models
 ```

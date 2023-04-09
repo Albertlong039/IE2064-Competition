@@ -125,7 +125,7 @@ ncol(preprocessed)
 ```{r}
 predictors_only <- data.frame(preprocessed %>% select(-outcome))
 predictors_only_correlation_matrix <- cor(predictors_only)
-cutoff <- 0.95
+cutoff <- 0.9
 names_of_predictors_to_remove <- findCorrelation(
 predictors_only_correlation_matrix, names=TRUE, cutoff=cutoff)
 removed_predictors <- preprocessed %>%
@@ -175,14 +175,15 @@ Non_linear_models
 set.seed(123)
 tree_fit = train(outcome ~ ., data = trainData, method = "rpart", trControl = ctrl)
 summary(tree_fit$finalModel)
-
+```
+```{r}
 # Random forests
-set.seed(123)
-mtryGrid <- data.frame()
-rf_fit = train(outcome ~ ., data = trainData, method = "rf", ntree=50, importance = TRUE)
+set.seed(150)
+mtryGrid <- data.frame(mtry = c(8,10,12,14,16))
+rf_fit = train(outcome ~ ., data = trainData, tuneGrid = mtryGrid,method = "rf", ntree=200, importance = TRUE,trControl = ctrl)
 summary(rf_fit$finalModel)
 
-Trees_models <- list(min(tree_fit$results$RMSE),
+Trees_models <- list(max(rf_fit$results$RMSE),
                      min(rf_fit$results$RMSE))
 Trees_models
 rf_fit$results
@@ -249,7 +250,9 @@ data2 <- read.csv(
 
 ```{r}
 # do the prediction with random forest
-predictions <- predict(rf_fit, data2)
+test <- predict(preprocessing_fit, data2)
+predictions <- predict(rf_fit, test)
+
 data2$outcome <- predictions
 ```
 
